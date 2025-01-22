@@ -37,7 +37,6 @@ variable "server_port" {
     default = 8080
 }
 
---------------------------------------------------------------------------
 
 
 resource "aws_launch_configuration" "example" {
