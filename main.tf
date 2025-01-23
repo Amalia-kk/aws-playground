@@ -5,7 +5,7 @@ provider "aws" {
 resource "aws_instance" "example" {
     ami = "ami-0fb653ca2d320ac1" #change before deploying as this is set in a different region
     instance_type = "t2.micro"
-    vpc_security_group_ids = [aws_security_group.instance.id]
+    vpc_security_group_ids = [aws_security_group.instance.id] 
 
     user_data = <<-EOF
                 #!/bin/bash
@@ -14,6 +14,8 @@ resource "aws_instance" "example" {
                 EOF
 
     user_data_replace_on_change = true
+    # User data only runs on the first boot. Terraform works by updating instances so if this was false,
+    # you would miss out on the user data
 
     tags = {
         Name = "terraform-example"
@@ -37,6 +39,8 @@ variable "server_port" {
     default = 8080
 }
 
+###################################################################################################
+# Another way to do it:
 
 
 resource "aws_launch_configuration" "example" {
@@ -50,9 +54,9 @@ resource "aws_launch_configuration" "example" {
                 nohup busybox httpd -f -p ${var.server_port} &
                 EOF
 
-    # Required when using a launch configuration with an aut-scaling group
+    # Required when using a launch configuration with an auto-scaling group:
     lifecycle {
-        create_before_destroy = true
+        create_before_destroy = true # Solves a problem explained on pg 68
     }
 }
 
