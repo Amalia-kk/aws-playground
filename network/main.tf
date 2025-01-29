@@ -88,7 +88,7 @@ data "aws_subnets" "default" {
 }
 
 # Pulling the subnet IDs from the data source and telling the ASG to use them:
-resource "aws_autoscaling_group" "example" {
+resource "aws_autoscaling_group" "example2" {
     launch_configuration = aws_launch_configuration.example.name
     vpc_zone_identifier  = data.aws_subnets.default.IDs
 
@@ -131,16 +131,16 @@ resource "aws_lb_listener" "http" {
 
 }
 
-# The ALB requires its own security group just like any other AWS resource. We will set this to allow 
-# incoming requests on port 80 so that you can access the LB over HTTP, and allow outgoing requests on all
-# ports so that the load balancer can perform health checks:
+# The ALB requires its own security group just like any other AWS resource. This will allow incoming requests
+# on port 80 so that you can access the LB over HTTP, and allow outgoing requests on all ports so that the
+# LB can perform health checks:
 resource "aws_security_group" "alb" {
-    name = "terraform-ecample-alb"
+    name = "terraform-example-alb"
 
     ingress {
         from_port   = 80
         to_port     = 80
-        protocol    = "tcp"
+        protocol    = "tcp" # Transmission Control Protocol): communication between devices
         cidr_blocks = ["0.0.0.0/0"]
     }
 
@@ -180,7 +180,7 @@ resource "aws_lb_listener_rule" "asg" {
     priority = 100
 
     condition {
-        path_patter {
+        path_pattern {
             values = ["*"]
         }
     }
