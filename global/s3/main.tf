@@ -12,7 +12,7 @@ resource "aws_s3_bucket" "terraform_state" {
 }
 
 resource "aws_s3_bucket_versioning" "enabled" {
-    bucket     = aws_s3_bucket.terraform-state.id
+    bucket     = aws_s3_bucket.terraform_state.id
 
     versioning_configuration {
         status = "enabled"
@@ -59,13 +59,25 @@ terraform {
     }
 }
 
-output "s3_bucket_arn" {
-    value       = aws_s3_bucket.terraform_state.arn
-    description = "The ARN of the S3 bucket"
+# The following won't work, variables are not allowed in a backend confuguration
+terraform {
+    backend "s3" {
+      bucket         = var.bucket
+      region         = var.region
+      dynamodb_table = var.dynamodb_table
+      key            = "example/terraform.tfstate"
+      encrypt        = true
+    }
 }
 
-output "dynamodb_table_name" {
-    value       = aws_dynamodb_table.terraform_locks.name
-    description = "The name of the DynamoDB table"
+# This means that you would have to copy and paste all of the values needed above. This risks errors. Instead,
+# you can create a backend.hcl file and add the attributes there
+
+terraform {
+    backend "s3" {
+        key = "example/terraform.tfstate"
+    }
 }
+# The key has remained in the terraform code because this needs to be different each time
+# To put the partial configurations together, you would run `terraform init -backend-config=backend.hcl
 
